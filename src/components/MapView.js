@@ -1,11 +1,15 @@
 import React, { Component } from 'react';
 import GoogleMapReact from 'google-map-react';
-import MAPS_API_KEY from '../utils/constants'
+import {MAPS_API_KEY} from '../utils/constants'
 import {getAllPosts, insertPost} from '../remote/PostAPI'
 import './MapView.css'
 
+import {createStore,combineReducers} from 'redux'
 
+import {Posts} from '../Reducers'
+import {SetPost} from "../ActionCreators";
 
+import Button from '@material-ui/core/Button';
 
 class MapView extends Component {
     constructor(props){
@@ -15,19 +19,30 @@ class MapView extends Component {
               lat: -8.056940,
               lng:  -34.891776
             },
-            zoom: 15,
-            regions:{},
+            zoom: 15
         };
 
     }
 
-    async componentWillMount(){
-        const res = await getAllPosts()
-        
-        this.setState({regions: res.data.data})
+    componentWillMount(){
 
-    } 
-    
+
+        this.store = createStore(combineReducers({Posts}))
+
+
+        this.unsubscribe = this.store.subscribe(()=>{
+            this.forceUpdate();
+            console.log("State:",this.store.getState())
+        })
+
+    }
+
+    async componentDidMount() {
+        const res = await getAllPosts()
+
+        this.store.dispatch(SetPost(res))
+    }
+
 
     onMapClick(funct){
         this.setState({
@@ -65,6 +80,12 @@ class MapView extends Component {
         
         return (
             <div id="map_container">
+                <Button
+
+
+                    style={{position:'absolute',top:0,right:0,zIndex:'9999',margin:'10px'}} variant="contained" >
+                    Editar
+                </Button>
                 <GoogleMapReact
                     options={this.createMapConfiguration}
 
@@ -73,7 +94,7 @@ class MapView extends Component {
                     defaultCenter={this.state.center}
                     defaultZoom={this.state.zoom}
                 >
-                
+
                 </GoogleMapReact>
             </div>
         );
