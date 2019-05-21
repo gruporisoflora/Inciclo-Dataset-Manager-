@@ -15,6 +15,20 @@ export const Posts = (state = [], action)=>{
     }
 }
 
+export const Mode =(state= "" , action) =>{
+
+    const{type,payload} = action
+
+    switch (type) {
+        case C.SWITCH_MODE:
+            console.log("Trocou")
+            return payload
+
+        default:
+            return state
+    }
+}
+
 const Post = (state={}, action )=>{
 
     const {type,payload} = action;

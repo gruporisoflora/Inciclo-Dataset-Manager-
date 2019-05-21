@@ -7,9 +7,17 @@ export const AddPost= (_payload = {}) =>{
     }
 }
 
+
+export const SwitchMode = (_payload="")=>{
+    return{
+        type: C.SWITCH_MODE,
+        payload: _payload
+    }
+}
+
 export const SetPost= (_payload = []) =>{
     return {
-        type: C.ADD_POST,
+        type: C.SET_POSTS,
         payload: _payload
     }
 }
