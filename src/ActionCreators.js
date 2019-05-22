@@ -8,16 +8,48 @@ export const AddPost= (_payload = {}) =>{
 }
 
 
-export const SwitchMode = (_payload="")=>{
+
+export const InitializePostsCreation = (_payload)=>{
+
+
+    return {
+        type: C.INITIALIZE_POSTS_CREATION,
+        payload:_payload
+    }
+
+}
+
+export const InsertDataToPost = (_payload)=>{
+    return {
+        type: C.INSERT_DATA_TO_POST,
+        payload:_payload
+    }
+}
+
+export const ClearPostCreation = (_payload)=>{
+    return {
+        type: C.CLEAR_POST_CREATION,
+        payload:_payload
+    }
+}
+
+
+export const SwitchMode = ()=>{
     return{
-        type: C.SWITCH_MODE,
-        payload: _payload
+        type: C.SWITCH_ITERACTION_MODE
     }
 }
 
 export const SetPost= (_payload = []) =>{
     return {
         type: C.SET_POSTS,
+        payload: _payload
+    }
+}
+
+export const AppendPosts= (_payload = {}) =>{
+    return {
+        type: C.APPEND_POSTS,
         payload: _payload
     }
 }

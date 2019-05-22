@@ -1,4 +1,4 @@
-import {Actions as C} from './utils/constants'
+import {Actions as C,InteractionTypes} from './utils/constants'
 
 
 export const Posts = (state = [], action)=>{
@@ -6,24 +6,25 @@ export const Posts = (state = [], action)=>{
     const {type , payload} = action;
 
     switch (type) {
-        case C.ADD_POST:
-            return [...state, Post({}, action)];
         case C.SET_POSTS:
             return payload;
+
+            return [...state,payload]
         default:
             return state
     }
 }
 
 
-export const Mode =(state= "" , action) =>{
+export const IteractionMode =(state= InteractionTypes.VIEW_MODE , action) =>{
+
 
     const{type,payload} = action
 
     switch (type) {
-        case C.SWITCH_MODE:
-            console.log("Trocou")
-            return payload
+        case C.SWITCH_ITERACTION_MODE:
+            return state === InteractionTypes.VIEW_MODE? 
+            InteractionTypes.EDIT_MODE: InteractionTypes.VIEW_MODE
 
         default:
             return state
@@ -31,22 +32,39 @@ export const Mode =(state= "" , action) =>{
 }
 
 
-export const AddingPostObject= (state={},action)=>{
+export const PostsObject = (state = {addedPosts:[]} ,action) =>{
+    const {type,payload} = action
+    
 
-    const{type,payload} = action
-
-
-    switch (type) {
-        case C.ADD_POST:
+    switch(type){
+        case C.INITIALIZE_POSTS_CREATION:
+            const {lat , lng} = payload
             return {
-                latitude:payload.lat,
-                longitude: payload.lng
-            };
+                ...state,
+                currentAdded:{
+                    latitude: lat,
+                        longitude: lng
+                }
+            }
+        case C.INSERT_DATA_TO_POST:
+            const {attribute, data} = payload
+
+            state.currentAdded[attribute] = data
+            return state
+        case C.APPEND_POSTS:
+            return {
+                ...state,
+                addedPosts:[...state.addedPosts,payload]
+            }
+        case C.CLEAR_POST_CREATION:
+            return  {...state, currentAdded:{}}
         default:
             return state
+        
+        
     }
-
 }
+
 
 
 const Post = (state={}, action )=>{
