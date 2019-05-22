@@ -47,6 +47,13 @@ export const SetPost= (_payload = []) =>{
     }
 }
 
+export const CreateRelation = (_payload={})=>{
+    return{
+        type:C.CREATE_RELATIONSHIP,
+        payload:_payload
+    }
+}
+
 export const AppendPosts= (_payload = {}) =>{
     return {
         type: C.APPEND_POSTS,

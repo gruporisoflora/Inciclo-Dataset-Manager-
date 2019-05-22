@@ -4,7 +4,7 @@ import {MAPS_API_KEY,InteractionTypes} from '../utils/constants'
 import {getAllPosts, insertPost} from '../remote/PostAPI'
 import './MapView.css'
 
-
+import {isEmpty} from '../utils/ArrayHelper'
 
 import {createStore,combineReducers} from 'redux'
 
@@ -16,6 +16,7 @@ import {
     InitializePostsCreation,
     InsertDataToPost,
     ClearPostCreation,
+    CreateRelation,
     AppendPosts} from "../ActionCreators";
 
 
@@ -40,7 +41,9 @@ class MapView extends Component {
               lat: -8.056940,
               lng:  -34.891776
             },
-            zoom: 15
+            zoom: 15,
+            clickedItemBuffer:[],
+            currentSelected:undefined
         };
 
 
@@ -75,6 +78,8 @@ class MapView extends Component {
         //FAKE DATA FOR TESTING
 
 
+
+
     }
 
 
@@ -83,10 +88,6 @@ class MapView extends Component {
     }
 
 
-    createMapConfiguration(maps){
-        return 
-    }
-
 
     handleMapClick(evt){
         console.log("Clicou no mapa.")
@@ -94,11 +95,55 @@ class MapView extends Component {
         
         //open popup
         this.store.dispatch(InitializePostsCreation(evt))
+
+
+
         
         
     }
 
-    handleMapChildClick(evt){
+    handleMapChildClick(key,evt){
+        const{clickedItemBuffer} = this.state
+
+
+        this.setState({currentSelected: key})
+
+
+
+        if(clickedItemBuffer.length >0){
+            let firstItem = clickedItemBuffer[0]
+
+
+            this.store.dispatch(
+                CreateRelation({
+                    item1Index:key,
+                    item2Index:firstItem.id
+                }
+            ))
+
+            let geodesicPolyline = new this.mapsRef.Polyline({
+                path: [firstItem.coordinates,
+                        evt
+                ]
+                // ...
+            })
+
+            geodesicPolyline.setMap(this.mapRef)
+
+            console.log(this.state.clickedItemBuffer)
+
+            this.setState({clickedItemBuffer: clickedItemBuffer.shift()})
+        }
+
+        this.setState({
+                clickedItemBuffer:[
+                    ...clickedItemBuffer,
+                    {id:key, coordinates:evt}
+                    ]
+
+        })
+
+
         console.log("Clicou em poste.")
         console.log(evt)
         
@@ -126,11 +171,14 @@ class MapView extends Component {
         this.store.dispatch(ClearPostCreation())
     }
 
+
+
     render() {
 
 
         const {Posts,IteractionMode,PostsObject} = this.store.getState()
 
+        const {currentSelected} =  this.state
         const mapConfiguration ={
             panControl: true,
             draggableCursor: this.store.getState().IteractionMode ==InteractionTypes.VIEW_MODE?"default":"cell",
@@ -180,7 +228,7 @@ class MapView extends Component {
 
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={ev=>this.handleCancelPostCreation} color="primary">
+                        <Button onClick={this.handleCancelPostCreation} color="primary">
                         Cancel
                         </Button>
                         <Button onClick={this.handleSubmitPostClick} color="primary">
@@ -195,8 +243,11 @@ class MapView extends Component {
                             options={()=>mapConfiguration}
 
                             onClick={data=> IteractionMode === InteractionTypes.EDIT_MODE && this.handleMapClick(data)}
-
-                            onChildClick={data=>this.handleMapChildClick(data)}
+                            onGoogleApiLoaded={({map,maps}) => {
+                                this.mapRef = map
+                                this.mapsRef = maps
+                            }}
+                            onChildClick={(key,obj)=>this.handleMapChildClick(key,obj)}
                             bootstrapURLKeys={{key:MAPS_API_KEY}}
                             defaultCenter={this.state.center}
                             defaultZoom={this.state.zoom}
@@ -209,8 +260,10 @@ class MapView extends Component {
 
                                 )
                             }
+
+
                             {
-                                Posts.map(item=><PostItem lat={item.lat} lng={item.lng}/>)
+                                Posts.map((item,key)=><PostItem onClick={this.handleMapChildClick}  lat={item.lat} lng={item.lng}/>)
                             }
                         </GoogleMapReact>): <h1>Carregando...</h1>
 
@@ -222,19 +275,20 @@ class MapView extends Component {
     }
 }
 
-function isEmpty(obj) {
-    return !obj || Object.keys(obj).length === 0;
-}
+
 
 const PostItem = (props) =>{
 
     const {lat,lng} = props
 
+
     const style ={
         item:{
+            margin:'-11px',
             borderRadius:'50%',
             backgroundColor:'#00AC8F',
             borderWidth:'2px',
+            padding:0,
             borderColor:"#008b72",
             borderStyle:'solid',
             width:'20px',
@@ -242,11 +296,12 @@ const PostItem = (props) =>{
         }
     }
     return(
-        <div lat={lat} lng={lng} style={style.item}>
+        <div  lat={lat} lng={lng} style={style.item}>
 
         </div>
     )
 }
+
 
 
 export default MapView;

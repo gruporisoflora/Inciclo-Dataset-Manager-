@@ -1,5 +1,5 @@
 import {Actions as C,InteractionTypes} from './utils/constants'
-
+import {containsObject} from './utils/ArrayHelper'
 
 export const Posts = (state = [], action)=>{
 
@@ -43,7 +43,8 @@ export const PostsObject = (state = {addedPosts:[]} ,action) =>{
                 ...state,
                 currentAdded:{
                     latitude: lat,
-                        longitude: lng
+                    longitude: lng,
+                    conectedPosts:[]
                 }
             }
         case C.INSERT_DATA_TO_POST:
@@ -57,7 +58,29 @@ export const PostsObject = (state = {addedPosts:[]} ,action) =>{
                 addedPosts:[...state.addedPosts,payload]
             }
         case C.CLEAR_POST_CREATION:
-            return  {...state, currentAdded:{}}
+            return  {...state, currentAdded:{}};
+
+        case C.CREATE_RELATIONSHIP:
+            const {item1Index,item2Index} = payload
+
+            console.log(item1Index)
+            console.log(item2Index)
+
+            let item1 = state.addedPosts[item1Index]
+            let item2 = state.addedPosts[item2Index]
+
+            if(containsObject(item2, item1.conectedPosts))return state
+
+
+            item1.conectedPosts.push(item2)
+            item2.conectedPosts.push(item1)
+
+            state.addedPosts[item1Index] = item1
+            state.addedPosts[item2Index] = item2
+            return state
+
+
+
         default:
             return state
         
