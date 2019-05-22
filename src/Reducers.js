@@ -1,4 +1,4 @@
-import {Actions as C} from './utils/constants'
+import {Actions as C,InteractionTypes} from './utils/constants'
 
 
 export const Posts = (state = [], action)=>{
@@ -6,8 +6,6 @@ export const Posts = (state = [], action)=>{
     const {type , payload} = action;
 
     switch (type) {
-        case C.ADD_POST:
-            return [...state, Post({}, action)];
         case C.SET_POSTS:
             return payload;
         default:
@@ -15,17 +13,47 @@ export const Posts = (state = [], action)=>{
     }
 }
 
-export const Mode =(state= "" , action) =>{
+export const IteractionMode =(state= InteractionTypes.VIEW_MODE , action) =>{
 
     const{type,payload} = action
 
     switch (type) {
-        case C.SWITCH_MODE:
-            console.log("Trocou")
-            return payload
+        case C.SWITCH_ITERACTION_MODE:
+            return state === InteractionTypes.VIEW_MODE? 
+            InteractionTypes.EDIT_MODE: InteractionTypes.VIEW_MODE
 
         default:
             return state
+    }
+}
+
+
+export const PostsObject = (state = {} ,action) =>{
+    const {type,payload} = action
+    
+
+    switch(type){
+        case C.INITIALIZE_POSTS_CREATION:
+            const {lat , lng} = payload
+            return {
+                currentAdded:{
+                    latitude: lat,
+                    longitude: lng
+                },
+                addedPosts:[]
+            }
+        case C.INSERT_DATA_TO_POST:
+            const {attribute, data} = payload
+
+            state.currentAdded[attribute] = data
+            return state
+            
+        case C.CLEAR_POST_CREATION:
+            return {}
+        default:
+            return state
+        
+        
     }
 }
 

@@ -5,7 +5,7 @@ const dev = {
 }
 
 const prod = {
-    API_URL:"lala"
+    API_URL:"inciclo.us-east-2.elasticbeanstalk.com"
 }
 
 
