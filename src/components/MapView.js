@@ -8,7 +8,7 @@ import './MapView.css'
 
 //REDUX
 import {createStore,combineReducers} from 'redux'
-import {Posts,Mode} from '../Reducers'
+import {Posts,Mode,AddingPostObject} from '../Reducers'
 import {AddPost, SetPost, SwitchMode} from "../ActionCreators";
 
 
@@ -30,7 +30,7 @@ class MapView extends Component {
             zoom: 15
         };
 
-        this.store = createStore(combineReducers({Posts,Mode}))
+        this.store = createStore(combineReducers({Posts,Mode,AddingPostObject}))
         this.unsubscribe = this.store.subscribe(()=>{
             this.forceUpdate();
             console.log("State:",this.store.getState())
@@ -88,7 +88,7 @@ class MapView extends Component {
 
     render() {
 
-        const {Posts} = this.store.getState()
+        const {Posts,Mode} = this.store.getState()
 
 
 
@@ -106,7 +106,7 @@ class MapView extends Component {
                         <GoogleMapReact
                             options={this.createMapConfiguration}
 
-                            onClick={data=>this.handleMapClick(data)}
+                            onClick={data=> Mode === "ADD_POST_MODE" && this.handleMapClick(data)}
                             onChildClick={data=>this.handleMapChildClick(data)}
                             bootstrapURLKeys={{key:MAPS_API_KEY}}
                             defaultCenter={this.state.center}

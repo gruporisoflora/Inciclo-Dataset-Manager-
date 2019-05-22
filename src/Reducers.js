@@ -15,6 +15,7 @@ export const Posts = (state = [], action)=>{
     }
 }
 
+
 export const Mode =(state= "" , action) =>{
 
     const{type,payload} = action
@@ -28,6 +29,25 @@ export const Mode =(state= "" , action) =>{
             return state
     }
 }
+
+
+export const AddingPostObject= (state={},action)=>{
+
+    const{type,payload} = action
+
+
+    switch (type) {
+        case C.ADD_POST:
+            return {
+                latitude:payload.lat,
+                longitude: payload.lng
+            };
+        default:
+            return state
+    }
+
+}
+
 
 const Post = (state={}, action )=>{
 
