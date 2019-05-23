@@ -11,25 +11,8 @@ export const Posts = (state = [], action)=>{
 
 
             return [...state,...payload]
-        case C.CREATE_RELATIONSHIP:
-            const {item1Index,item2Index} = payload
-
-
-            console.log(item1Index)
-            console.log(item2Index)
-
-            let item1 = state[item1Index]
-            let item2 = state[item2Index]
-
-            if(containsObject(item2, item1.conectedPosts))return state;
-
-
-            item1.conectedPosts.push({...item2,conectedPosts:[] })
-            item2.conectedPosts.push({...item1,conectedPosts:[] })
-
-            state[state.indexOf(item1)] = item1
-            state[state.indexOf(item2)] = item2
-
+        case C.UPDATE_POST:
+            state[payload.key] = payload.data
             return state
         default:
             return state
@@ -53,7 +36,7 @@ export const IteractionMode =(state= InteractionTypes.VIEW_MODE , action) =>{
 }
 
 
-export const PostsObject = (state = {addedPosts:[]} ,action) =>{
+export const PostsObject = (state = {} ,action) =>{
     const {type,payload} = action
     
 

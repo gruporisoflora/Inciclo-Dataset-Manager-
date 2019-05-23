@@ -19,13 +19,16 @@ export const insertPosts = async (posts)=>{
     const res = await  axios(
         {
             url:URI,
-            method:'post',
+            method:'put',
             data:posts
         }
 
     )
     return res.data
 };
+
+
+
 
 export const insertPost = async (post)=>{
     const res = await  axios(

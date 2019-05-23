@@ -18,7 +18,7 @@ import {
     InsertDataToPost,
     ClearPostCreation,
     CreateRelation,
-    AppendPosts, ConcatPosts
+    AppendPosts, ConcatPosts, UpdatePost
 } from "../ActionCreators";
 
 
@@ -121,41 +121,57 @@ class MapView extends Component {
         geodesicPolyline.setMap(this.mapRef)
     }
 
-    handleMapChildClick(key,evt){
+    async handleMapChildClick(key,evt){
 
+        console.log(this.state)
         if(this.store.getState().IteractionMode == InteractionTypes.VIEW_MODE) return
+
         const{clickedItemBuffer} = this.state
 
-
+        const {Posts} = this.store.getState()
         this.setState({currentSelected: key})
 
 
 
         if(clickedItemBuffer.length >0){
-            let firstItem = clickedItemBuffer[0]
 
 
-            this.store.dispatch(
-                CreateRelation({
-                    item1Index:key,
-                    item2Index:firstItem.key
-                }
-            ))
 
-            this.drawLine(evt, firstItem.coordinates)
+            let firstClickedItem = clickedItemBuffer[0]
+
+            if(firstClickedItem.key === key) return
+
+            let item1 = Posts[firstClickedItem.key]
+            let item2 = Posts[key]
+
+
+
+            item1.conectedPosts.push({...item2,conectedPosts:[] })
+
+
+            this.drawLine(evt, firstClickedItem.coordinates)
+
+            let res = await insertPost(item1)
+
+            if(res.status === "OK"){
+                this.store.dispatch(UpdatePost({key:firstClickedItem.key,data:res.data}))
+            }
+
 
             console.log(this.state.clickedItemBuffer)
 
-            this.setState({clickedItemBuffer: clickedItemBuffer.shift()})
-        }
-
-        this.setState({
+            this.setState({clickedItemBuffer: []})
+        }else{
+            this.setState({
                 clickedItemBuffer:[
                     ...clickedItemBuffer,
                     {key:key, coordinates:evt}
-                    ]
+                ]
 
-        })
+            })
+        }
+
+
 
 
         console.log("Clicou em poste.")
@@ -166,17 +182,7 @@ class MapView extends Component {
 
     async handleSettingsButtonClick(evt){
 
-        const {IteractionMode,PostsObject ,Posts}= this.store.getState()
 
-        if(IteractionMode == InteractionTypes.EDIT_MODE){
-
-            const res = await insertPosts(Posts)
-
-            if(res.status == "OK"){
-                this.store.dispatch(ConcatPosts(PostsObject.addedPosts))
-            }
-
-        }
         this.store.dispatch(SwitchMode())
     }
 
@@ -224,7 +230,7 @@ class MapView extends Component {
                     
                     onClick={ev=> this.handleSettingsButtonClick(ev)}
                     style={{position:'absolute',top:0,right:0,zIndex:'9999',margin:'10px'}} variant="extended" >
-                    {IteractionMode == InteractionTypes.EDIT_MODE?"Confirmar":"Adicionar postes"}
+                    {IteractionMode == InteractionTypes.EDIT_MODE?"Confirmar":"Editar rede"}
                 </Fab>
 
                 <Dialog
@@ -260,10 +266,10 @@ class MapView extends Component {
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={this.handleCancelPostCreation} color="primary">
-                        Cancel
+                        Cancelar
                         </Button>
                         <Button onClick={this.handleSubmitPostClick} color="primary">
-                        Subscribe
+                        Adicionar
                         </Button>
                     </DialogActions>
                     </Dialog>

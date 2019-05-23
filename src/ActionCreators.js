@@ -68,3 +68,10 @@ export const AppendPosts= (_payload = {}) =>{
         payload: _payload
     }
 }
+
+export const UpdatePost= (_payload = {}) =>{
+    return {
+        type: C.UPDATE_POST,
+        payload: _payload
+    }
+}
