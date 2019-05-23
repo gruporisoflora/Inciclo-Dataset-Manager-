@@ -1,7 +1,7 @@
 
 
 const dev = {
-    API_URL:"localhost:8080"
+    API_URL:"inciclo.us-east-2.elasticbeanstalk.com"
 }
 
 const prod = {
@@ -10,6 +10,6 @@ const prod = {
 
 
 
-const Config = process.env.APP_STAGE === "prod"? prod:dev
+const Config = process.env.APP_STAGE == "prod"? prod:dev
 
 export default Config
