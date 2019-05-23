@@ -119,7 +119,7 @@ class MapView extends Component {
             this.store.dispatch(
                 CreateRelation({
                     item1Index:key,
-                    item2Index:firstItem.id
+                    item2Index:firstItem.key
                 }
             ))
 
@@ -140,7 +140,7 @@ class MapView extends Component {
         this.setState({
                 clickedItemBuffer:[
                     ...clickedItemBuffer,
-                    {id:key, coordinates:evt}
+                    {key:key, coordinates:evt}
                     ]
 
         })
@@ -154,11 +154,11 @@ class MapView extends Component {
 
     async handleSettingsButtonClick(evt){
 
-        const {IteractionMode,PostsObject }= this.store.getState()
+        const {IteractionMode,PostsObject ,Posts}= this.store.getState()
 
         if(IteractionMode == InteractionTypes.EDIT_MODE){
 
-            const res = await insertPosts(PostsObject.addedPosts)
+            const res = await insertPosts(Posts)
 
             if(res.status == "OK"){
                 this.store.dispatch(ConcatPosts(PostsObject.addedPosts))
@@ -181,8 +181,9 @@ class MapView extends Component {
 
     handleSubmitPostClick(evt){
         console.log("Submetendo poste ")
-        this.store.dispatch(AppendPosts(this.store.getState().PostsObject.currentAdded))
+        this.store.dispatch(ConcatPosts([this.store.getState().PostsObject.currentAdded]))
         this.store.dispatch(ClearPostCreation())
+
     }
 
 
@@ -268,17 +269,10 @@ class MapView extends Component {
                             defaultZoom={this.state.zoom}
                         >
 
-                            {
-                                PostsObject.addedPosts&&(
-
-                                    PostsObject.addedPosts.map(item=><PostItem lat={item.latitude} lng={item.longitude}/>)
-
-                                )
-                            }
 
 
                             {
-                                Posts.map((item,key)=><PostItem onClick={this.handleMapChildClick}  lat={item.latitude} lng={item.longitude}/>)
+                                Posts.map((item,key)=><PostItem lat={item.latitude} lng={item.longitude}/>)
                             }
                         </GoogleMapReact>): <h1>Carregando...</h1>
 
@@ -299,7 +293,8 @@ const PostItem = (props) =>{
 
     const style ={
         item:{
-            margin:'-11px',
+            position: 'absolute',
+            transform: 'translate(-50%, -50%)',
             borderRadius:'50%',
             backgroundColor:'#00AC8F',
             borderWidth:'2px',
