@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import GoogleMapReact from 'google-map-react';
 import {MAPS_API_KEY,InteractionTypes} from '../utils/constants'
-import {getAllPosts, insertPosts} from '../remote/PostsAPI'
+import {getAllPosts, insertPosts,insertPost} from '../remote/PostsAPI'
 import './MapView.css'
 
 import {isEmpty} from '../utils/ArrayHelper'
@@ -75,13 +75,19 @@ class MapView extends Component {
 
         console.log(res)
         this.store.dispatch(ConcatPosts(res))
-        
-        
-        //FAKE DATA FOR TESTING
 
 
+        //draw relationship lines
 
+        this.store.getState().Posts.map(post =>{
 
+            post.conectedPosts.map(conPost=>{
+                this.drawLine(
+                    {lat:post.latitude,lng:post.longitude},
+                    {lat:conPost.latitude,lng:conPost.longitude}
+                )
+            })
+        })
     }
 
 
@@ -100,11 +106,24 @@ class MapView extends Component {
 
 
 
-        
+
         
     }
 
+    drawLine(item1,item2){
+        let geodesicPolyline = new this.mapsRef.Polyline({
+            path: [item1,
+                item2
+            ]
+            // ...
+        })
+
+        geodesicPolyline.setMap(this.mapRef)
+    }
+
     handleMapChildClick(key,evt){
+
+        if(this.store.getState().IteractionMode == InteractionTypes.VIEW_MODE) return
         const{clickedItemBuffer} = this.state
 
 
@@ -123,14 +142,7 @@ class MapView extends Component {
                 }
             ))
 
-            let geodesicPolyline = new this.mapsRef.Polyline({
-                path: [firstItem.coordinates,
-                        evt
-                ]
-                // ...
-            })
-
-            geodesicPolyline.setMap(this.mapRef)
+            this.drawLine(evt, firstItem.coordinates)
 
             console.log(this.state.clickedItemBuffer)
 
@@ -179,9 +191,12 @@ class MapView extends Component {
         this.store.dispatch(ClearPostCreation())
     }
 
-    handleSubmitPostClick(evt){
+    async handleSubmitPostClick(evt){
         console.log("Submetendo poste ")
-        this.store.dispatch(ConcatPosts([this.store.getState().PostsObject.currentAdded]))
+
+        let res = await insertPost(this.store.getState().PostsObject.currentAdded)
+        console.log(res)
+        this.store.dispatch(ConcatPosts([res.data]))
         this.store.dispatch(ClearPostCreation())
 
     }

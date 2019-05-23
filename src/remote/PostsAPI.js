@@ -15,7 +15,7 @@ export const  getAllPosts = async ()=>{
 };
 
 export const insertPosts = async (posts)=>{
-    console.log(posts)
+    console.log("se comunicando com o server...")
     const res = await  axios(
         {
             url:URI,
@@ -26,5 +26,17 @@ export const insertPosts = async (posts)=>{
     )
     return res.data
 };
+
+export const insertPost = async (post)=>{
+    const res = await  axios(
+        {
+            url:URI,
+            method:'post',
+            data:post
+        }
+
+    )
+    return res.data
+}
 
 
