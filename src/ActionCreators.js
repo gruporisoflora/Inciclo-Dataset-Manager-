@@ -33,6 +33,14 @@ export const ClearPostCreation = (_payload)=>{
     }
 }
 
+export const ConcatPosts = (_payload = [])=>{
+    return {
+        type: C.CONCAT_POSTS,
+        payload:_payload
+    }
+}
+
+
 
 export const SwitchMode = ()=>{
     return{

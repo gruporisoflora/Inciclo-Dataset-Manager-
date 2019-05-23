@@ -6,10 +6,11 @@ export const Posts = (state = [], action)=>{
     const {type , payload} = action;
 
     switch (type) {
-        case C.SET_POSTS:
-            return payload;
 
-            return [...state,payload]
+        case C.CONCAT_POSTS:
+
+
+            return [...state,...payload]
         default:
             return state
     }
@@ -73,7 +74,7 @@ export const PostsObject = (state = {addedPosts:[]} ,action) =>{
 
 
             item1.conectedPosts.push(item2)
-            item2.conectedPosts.push(item1)
+            item2.conectedPosts.push({...item1,conectedPosts:[] })
 
             state.addedPosts[item1Index] = item1
             state.addedPosts[item2Index] = item2

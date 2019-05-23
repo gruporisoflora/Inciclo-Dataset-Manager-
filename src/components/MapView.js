@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import GoogleMapReact from 'google-map-react';
 import {MAPS_API_KEY,InteractionTypes} from '../utils/constants'
-import {getAllPosts, insertPost} from '../remote/PostAPI'
+import {getAllPosts, insertPosts} from '../remote/PostsAPI'
 import './MapView.css'
 
 import {isEmpty} from '../utils/ArrayHelper'
@@ -9,6 +9,7 @@ import {isEmpty} from '../utils/ArrayHelper'
 import {createStore,combineReducers} from 'redux'
 
 import {Posts,IteractionMode,PostsObject} from '../Reducers'
+
 import {
     AddPost,
     SetPost,
@@ -17,7 +18,8 @@ import {
     InsertDataToPost,
     ClearPostCreation,
     CreateRelation,
-    AppendPosts} from "../ActionCreators";
+    AppendPosts, ConcatPosts
+} from "../ActionCreators";
 
 
 //UTILS
@@ -72,7 +74,7 @@ class MapView extends Component {
         }
 
         console.log(res)
-        this.store.dispatch(SetPost(res))
+        this.store.dispatch(ConcatPosts(res))
         
         
         //FAKE DATA FOR TESTING
@@ -150,7 +152,19 @@ class MapView extends Component {
         
     }
 
-    handleSettingsButtonClick(evt){
+    async handleSettingsButtonClick(evt){
+
+        const {IteractionMode,PostsObject }= this.store.getState()
+
+        if(IteractionMode == InteractionTypes.EDIT_MODE){
+
+            const res = await insertPosts(PostsObject.addedPosts)
+
+            if(res.status == "OK"){
+                this.store.dispatch(ConcatPosts(PostsObject.addedPosts))
+            }
+
+        }
         this.store.dispatch(SwitchMode())
     }
 
@@ -179,6 +193,7 @@ class MapView extends Component {
         const {Posts,IteractionMode,PostsObject} = this.store.getState()
 
         const {currentSelected} =  this.state
+
         const mapConfiguration ={
             panControl: true,
             draggableCursor: this.store.getState().IteractionMode ==InteractionTypes.VIEW_MODE?"default":"cell",
@@ -263,7 +278,7 @@ class MapView extends Component {
 
 
                             {
-                                Posts.map((item,key)=><PostItem onClick={this.handleMapChildClick}  lat={item.lat} lng={item.lng}/>)
+                                Posts.map((item,key)=><PostItem onClick={this.handleMapChildClick}  lat={item.latitude} lng={item.longitude}/>)
                             }
                         </GoogleMapReact>): <h1>Carregando...</h1>
 
