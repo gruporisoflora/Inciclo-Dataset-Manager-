@@ -31,6 +31,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
+import { withStyles } from '@material-ui/core/styles';
 
 
 
@@ -48,6 +49,7 @@ class MapView extends Component {
             currentSelected:undefined
         };
 
+        this.classes = props.classes
 
         this.store = createStore(combineReducers({Posts,IteractionMode,PostsObject}))
 
@@ -110,7 +112,8 @@ class MapView extends Component {
         let geodesicPolyline = new this.mapsRef.Polyline({
             path: [item1,
                 item2
-            ]
+            ],strokeColor: "#4a6466"
+
             // ...
         })
 
@@ -208,6 +211,7 @@ class MapView extends Component {
     render() {
 
 
+
         const {Posts,IteractionMode,PostsObject} = this.store.getState()
 
         const {currentSelected} =  this.state
@@ -222,14 +226,17 @@ class MapView extends Component {
             scrollwheel: true,
         }
 
+
+
         return (
             <div id="map_container" style={{width: window.innerWidth,height: window.innerHeight}}>
-                <Fab
-                    
+                <Button
+                    variant="contained"
                     onClick={ev=> this.handleSettingsButtonClick(ev)}
-                    style={{position:'absolute',top:0,right:0,zIndex:'9999',margin:'10px'}} variant="extended" >
+                    style={{position:'absolute',top:0,right:0,zIndex:'9999',margin:'10px'}}
+                    classes={{root:this.classes.rootBtn}}>
                     {IteractionMode == InteractionTypes.EDIT_MODE?"Confirmar":"Editar rede"}
-                </Fab>
+                </Button>
 
                 <Dialog
                     open={!isEmpty(PostsObject.currentAdded)}
@@ -303,7 +310,20 @@ class MapView extends Component {
     }
 }
 
-
+const styles = {
+    rootBtn: {
+        background: 'linear-gradient(45deg, #91e842 30%, #91e842 90%)',
+        borderRadius: 3,
+        border: 0,
+        color: 'white',
+        height: 48,
+        padding: '0 30px',
+        boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
+    },
+    label: {
+        textTransform: 'capitalize',
+    },
+};
 
 const PostItem = (props) =>{
 
@@ -316,12 +336,12 @@ const PostItem = (props) =>{
             transform: 'translate(-50%, -50%)',
             borderRadius:'50%',
             backgroundColor:'#00AC8F',
-            borderWidth:'2px',
+            borderWidth:'1px',
             padding:0,
             borderColor:"#008b72",
             borderStyle:'solid',
-            width:'20px',
-            height:'20px'
+            width:'10px',
+            height:'10px'
         }
     }
     return(
@@ -333,4 +353,4 @@ const PostItem = (props) =>{
 
 
 
-export default MapView;
+export default withStyles(styles)(MapView);
