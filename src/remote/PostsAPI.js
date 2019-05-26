@@ -10,7 +10,6 @@ const URI = "http://"+API_URL+"/posts";
 export const  getAllPosts = async ()=>{
     let res = await axios.get(URI);
 
-
     return res.data.data
 };
 

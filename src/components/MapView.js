@@ -65,15 +65,11 @@ class MapView extends Component {
 
     async componentDidMount() {
 
-        let res = [];
+        let res = await getAllPosts()
 
-        try{
-            res = await getAllPosts()
-        }catch (e) {
-            console.log(e)
-        }
 
-        console.log(res)
+
+        console.log("Response :", res)
         this.store.dispatch(ConcatPosts(res))
 
 
@@ -220,12 +216,14 @@ class MapView extends Component {
             panControl: true,
             draggableCursor: this.store.getState().IteractionMode ==InteractionTypes.VIEW_MODE?"default":"cell",
             draggingCursor: "pointer",
-            mapTypeControl: true,
-            scrollwheel: true
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl:false,
+            scrollwheel: true,
         }
 
         return (
-            <div id="map_container">
+            <div id="map_container" style={{width: window.innerWidth,height: window.innerHeight}}>
                 <Fab
                     
                     onClick={ev=> this.handleSettingsButtonClick(ev)}
