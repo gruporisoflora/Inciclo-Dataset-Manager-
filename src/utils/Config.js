@@ -1,7 +1,7 @@
 
 
 const dev = {
-    API_URL:"inciclo.us-east-2.elasticbeanstalk.com"
+    API_URL:"localhost:8081"
 }
 
 const prod = {

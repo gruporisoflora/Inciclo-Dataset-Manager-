@@ -9,6 +9,9 @@ import {isEmpty} from '../utils/ArrayHelper'
 import {createStore,combineReducers} from 'redux'
 
 import {Posts,IteractionMode,PostsObject} from '../Reducers'
+import SockJsClient from 'react-stomp';
+
+import Config from '../utils/Config'
 
 import {
     AddPost,
@@ -45,13 +48,12 @@ class MapView extends Component {
               lng:  -34.891776
             },
             zoom: 15,
-            clickedItemBuffer:[],
-            currentSelected:undefined
+        
         };
 
         this.classes = props.classes
 
-        this.store = createStore(combineReducers({Posts,IteractionMode,PostsObject}))
+        this.store = createStore(combineReducers({Posts,PostsObject}))
 
         this.unsubscribe = this.store.subscribe(()=>{
             this.forceUpdate();
@@ -59,8 +61,7 @@ class MapView extends Component {
         })
 
 
-        this.handleCancelPostCreation = this.handleCancelPostCreation.bind(this)
-        this.handleSubmitPostClick = this.handleSubmitPostClick.bind(this)
+        
     }
 
 
@@ -75,17 +76,9 @@ class MapView extends Component {
         this.store.dispatch(ConcatPosts(res))
 
 
-        //draw relationship lines
+       
 
-        this.store.getState().Posts.map(post =>{
-
-            post.conectedPosts.map(conPost=>{
-                this.drawLine(
-                    {lat:post.latitude,lng:post.longitude},
-                    {lat:conPost.latitude,lng:conPost.longitude}
-                )
-            })
-        })
+        
     }
 
 
@@ -94,131 +87,18 @@ class MapView extends Component {
     }
 
 
-
-    handleMapClick(evt){
-        console.log("Clicou no mapa.")
-        console.log(evt)
-        
-        //open popup
-        this.store.dispatch(InitializePostsCreation(evt))
-
-
-
-
-        
+    handleOnMapChange(evt){
+        this.clientRef.sendMessage('/postsReceiver', evt);
     }
-
-    drawLine(item1,item2){
-        let geodesicPolyline = new this.mapsRef.Polyline({
-            path: [item1,
-                item2
-            ],strokeColor: "#4a6466"
-
-            // ...
-        })
-
-        geodesicPolyline.setMap(this.mapRef)
-    }
-
-    async handleMapChildClick(key,evt){
-
-        console.log(this.state)
-        if(this.store.getState().IteractionMode == InteractionTypes.VIEW_MODE) return
-
-        const{clickedItemBuffer} = this.state
-
-        const {Posts} = this.store.getState()
-        this.setState({currentSelected: key})
-
-
-
-        if(clickedItemBuffer.length >0){
-
-
-
-            let firstClickedItem = clickedItemBuffer[0]
-
-            if(firstClickedItem.key === key) return
-
-            let item1 = Posts[firstClickedItem.key]
-            let item2 = Posts[key]
-
-
-
-            item1.conectedPosts.push({...item2,conectedPosts:[] })
-
-
-            this.drawLine(evt, firstClickedItem.coordinates)
-
-            let res = await insertPost(item1)
-
-            if(res.status === "OK"){
-                this.store.dispatch(UpdatePost({key:firstClickedItem.key,data:res.data}))
-            }
-
-
-            console.log(this.state.clickedItemBuffer)
-
-            this.setState({clickedItemBuffer: []})
-        }else{
-            this.setState({
-                clickedItemBuffer:[
-                    ...clickedItemBuffer,
-                    {key:key, coordinates:evt}
-                ]
-
-            })
-        }
-
-
-
-
-        console.log("Clicou em poste.")
-        console.log(evt)
-        
-        
-    }
-
-    async handleSettingsButtonClick(evt){
-
-
-        this.store.dispatch(SwitchMode())
-    }
-
-
-    handleInputChange = inputName => evt =>{
-        console.log("Escreveu")
-        this.store.dispatch(InsertDataToPost({attribute: inputName,data:evt.target.value}))
-    };
-
-
-    handleCancelPostCreation(evt){
-        this.store.dispatch(ClearPostCreation())
-    }
-
-    async handleSubmitPostClick(evt){
-        console.log("Submetendo poste ")
-
-        let res = await insertPost(this.store.getState().PostsObject.currentAdded)
-        console.log(res)
-        this.store.dispatch(ConcatPosts([res.data]))
-        this.store.dispatch(ClearPostCreation())
-
-    }
-
-
 
     render() {
+        const {Posts} = this.store.getState()
 
-
-
-        const {Posts,IteractionMode,PostsObject} = this.store.getState()
-
-        const {currentSelected} =  this.state
+        
 
         const mapConfiguration ={
             panControl: true,
-            draggableCursor: this.store.getState().IteractionMode ==InteractionTypes.VIEW_MODE?"default":"cell",
+            draggableCursor: "default",
             draggingCursor: "pointer",
             mapTypeControl: false,
             streetViewControl: false,
@@ -230,73 +110,31 @@ class MapView extends Component {
 
         return (
             <div id="map_container" style={{width: window.innerWidth,height: window.innerHeight}}>
-                <Button
+                {/* <Button
                     variant="contained"
                     onClick={ev=> this.handleSettingsButtonClick(ev)}
                     style={{position:'absolute',top:0,right:0,zIndex:'9999',margin:'10px'}}
                     classes={{root:this.classes.rootBtn}}>
                     {IteractionMode == InteractionTypes.EDIT_MODE?"Confirmar":"Editar rede"}
-                </Button>
-
-                <Dialog
-                    open={!isEmpty(PostsObject.currentAdded)}
-                    onClose={this.handleCancelPostCreation}
-                    aria-labelledby="form-dialog-title"
-                    >
-                    <DialogTitle id="form-dialog-title">Adicionar poste</DialogTitle>
-                    <DialogContent>
-                        
-                        <TextField
-                        autoFocus
-                        margin="dense"
-                        id="id"
-                        label="Identificador"
-                        type="number"
-                        onChange={this.handleInputChange('identificator')}
-                        fullWidth
-                        />
-
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="TreeQtd"
-                            label="Quantidade de arvores"
-                            type="number"
-                            onChange={this.handleInputChange('treeQtd')}
-                            fullWidth
-                        />
-
-
-
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={this.handleCancelPostCreation} color="primary">
-                        Cancelar
-                        </Button>
-                        <Button onClick={this.handleSubmitPostClick} color="primary">
-                        Adicionar
-                        </Button>
-                    </DialogActions>
-                    </Dialog>
+                </Button> */}
+                
+                <SockJsClient url={"http://"+Config.API_URL+"/postsSocket "} topics={['/posts/socket']}
+                    onMessage={(msg) => { console.log(msg); }}
+                    ref={ (client) => { this.clientRef = client }} />
 
                 {
                     Posts ? (
                         <GoogleMapReact
                             options={()=>mapConfiguration}
-
-                            onClick={data=> IteractionMode === InteractionTypes.EDIT_MODE && this.handleMapClick(data)}
+                            onChange ={(e)=>this.handleOnMapChange(e)}
                             onGoogleApiLoaded={({map,maps}) => {
                                 this.mapRef = map
                                 this.mapsRef = maps
                             }}
-                            onChildClick={(key,obj)=>this.handleMapChildClick(key,obj)}
                             bootstrapURLKeys={{key:MAPS_API_KEY}}
                             defaultCenter={this.state.center}
                             defaultZoom={this.state.zoom}
                         >
-
-
-
                             {
                                 Posts.map((item,key)=><PostItem lat={item.latitude} lng={item.longitude}/>)
                             }
