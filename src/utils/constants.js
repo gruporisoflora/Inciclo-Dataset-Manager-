@@ -22,3 +22,5 @@ export const InteractionTypes = {
     EDIT_MODE:"ED",
     VIEW_MODE:"VM"
 }
+
+export const MAX_BUFFERED_POSTS = 40

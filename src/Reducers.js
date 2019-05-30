@@ -9,11 +9,11 @@ export const Posts = (state = [], action)=>{
 
         case C.CONCAT_POSTS:
 
-
+            console.log(payload)
             return [...state,...payload]
         case C.UPDATE_POST:
-            state[payload.key] = payload.data
-            return state
+            
+            return payload
         default:
             return state
     }

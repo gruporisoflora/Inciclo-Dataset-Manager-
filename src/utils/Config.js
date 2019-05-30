@@ -1,7 +1,7 @@
 
 
 const dev = {
-    API_URL:"localhost:8081"
+    API_URL:"localhost:8080"
 }
 
 const prod = {

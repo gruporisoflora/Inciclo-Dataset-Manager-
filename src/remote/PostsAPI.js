@@ -41,4 +41,16 @@ export const insertPost = async (post)=>{
     return res.data
 }
 
+export const getPostByBound = async (post) =>{
+    const res = await  axios(
+        {
+            url:URI + '/bounded',
+            method:'post',
+            data:post
+        }
+
+    )
+    return res.data.data
+}
+
 

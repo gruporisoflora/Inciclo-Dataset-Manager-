@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import GoogleMapReact from 'google-map-react';
-import {MAPS_API_KEY,InteractionTypes} from '../utils/constants'
-import {getAllPosts, insertPosts,insertPost} from '../remote/PostsAPI'
+import {MAPS_API_KEY,InteractionTypes, MAX_BUFFERED_POSTS} from '../utils/constants'
+import {getAllPosts, insertPosts,insertPost ,getPostByBound} from '../remote/PostsAPI'
 import './MapView.css'
 
 import {isEmpty} from '../utils/ArrayHelper'
@@ -47,7 +47,7 @@ class MapView extends Component {
               lat: -8.056940,
               lng:  -34.891776
             },
-            zoom: 15,
+            zoom: 25,
         
         };
 
@@ -87,10 +87,16 @@ class MapView extends Component {
     }
 
 
-    handleOnMapChange(evt){
-        this.clientRef.sendMessage('/postsReceiver', evt);
-    }
+    async handleOnMapChange(evt){
+        console.log(evt)
 
+        let res =  await getPostByBound(evt.bounds) 
+
+        this.store.dispatch(UpdatePost(res))
+        console.log(res)
+        
+    }
+    
     render() {
         const {Posts} = this.store.getState()
 
@@ -118,9 +124,7 @@ class MapView extends Component {
                     {IteractionMode == InteractionTypes.EDIT_MODE?"Confirmar":"Editar rede"}
                 </Button> */}
                 
-                <SockJsClient url={"http://"+Config.API_URL+"/postsSocket "} topics={['/posts/socket']}
-                    onMessage={(msg) => { console.log(msg); }}
-                    ref={ (client) => { this.clientRef = client }} />
+                
 
                 {
                     Posts ? (
