@@ -1,5 +1,5 @@
-import {Actions as C,InteractionTypes} from './utils/constants'
-import {containsObject} from './utils/ArrayHelper'
+import {Actions as C,InteractionTypes} from './constants'
+import {containsObject} from './ArrayHelper'
 
 export const Posts = (state = [], action)=>{
 

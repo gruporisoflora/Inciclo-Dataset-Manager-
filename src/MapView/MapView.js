@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import GoogleMapReact from 'google-map-react';
-import {MAPS_API_KEY,InteractionTypes} from '../utils/constants'
-import {getAllPosts, insertPosts,insertPost} from '../remote/PostsAPI'
+import {MAPS_API_KEY,InteractionTypes} from './constants'
+import {getAllPosts, insertPosts,insertPost} from './PostsAPI'
 import './MapView.css'
 
-import {isEmpty} from '../utils/ArrayHelper'
+import {isEmpty} from './ArrayHelper'
 
 import {createStore,combineReducers} from 'redux'
 
-import {Posts,IteractionMode,PostsObject} from '../Reducers'
+import {Posts,IteractionMode,PostsObject} from './Reducers'
 
 import {
     AddPost,
@@ -19,7 +19,7 @@ import {
     ClearPostCreation,
     CreateRelation,
     AppendPosts, ConcatPosts, UpdatePost
-} from "../ActionCreators";
+} from "./ActionCreators";
 
 
 //UTILS

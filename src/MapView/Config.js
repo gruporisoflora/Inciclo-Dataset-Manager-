@@ -1,5 +1,5 @@
 const dev = {
-    API_URL:"localhost:8080"
+    API_URL:"172.26.112.207:8080"
 }
 
 const prod = {

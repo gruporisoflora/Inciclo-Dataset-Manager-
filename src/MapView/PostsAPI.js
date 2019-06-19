@@ -1,4 +1,4 @@
-import Config from '../utils/Config'
+import Config from './Config'
 import axios from 'axios'
 import JSON from 'circular-json'
 

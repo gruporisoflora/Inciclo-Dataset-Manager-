@@ -1,4 +1,4 @@
-import {Actions as C} from './utils/constants'
+import {Actions as C} from './constants'
 
 export const AddPost= (_payload = {}) =>{
     return {
