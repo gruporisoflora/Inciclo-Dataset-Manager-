@@ -281,7 +281,7 @@ const PostItem = (props) =>{
      * 
      * impact/20 * 51
     */
-    console.log(impact)
+    console.log(podaId)
     
     let r = 0 + impact /20*51;
     let g = 255 - impact/20*51;
