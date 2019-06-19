@@ -45,8 +45,7 @@ class MapView extends Component {
               lng:  -34.891776
             },
             zoom: 15,
-            clickedItemBuffer:[],
-            currentSelected:undefined
+        
         };
 
         this.classes = props.classes
@@ -75,17 +74,7 @@ class MapView extends Component {
         this.store.dispatch(ConcatPosts(res))
 
 
-        //draw relationship lines
-
-        this.store.getState().Posts.map(post =>{
-
-            post.conectedPosts.map(conPost=>{
-                this.drawLine(
-                    {lat:post.latitude,lng:post.longitude},
-                    {lat:conPost.latitude,lng:conPost.longitude}
-                )
-            })
-        })
+        
     }
 
 
@@ -108,73 +97,9 @@ class MapView extends Component {
         
     }
 
-    drawLine(item1,item2){
-        let geodesicPolyline = new this.mapsRef.Polyline({
-            path: [item1,
-                item2
-            ],strokeColor: "#4a6466"
-
-            // ...
-        })
-
-        geodesicPolyline.setMap(this.mapRef)
-    }
-
     async handleMapChildClick(key,evt){
 
-        console.log(this.state)
-        if(this.store.getState().IteractionMode == InteractionTypes.VIEW_MODE) return
-
-        const{clickedItemBuffer} = this.state
-
-        const {Posts} = this.store.getState()
-        this.setState({currentSelected: key})
-
-
-
-        if(clickedItemBuffer.length >0){
-
-
-
-            let firstClickedItem = clickedItemBuffer[0]
-
-            if(firstClickedItem.key === key) return
-
-            let item1 = Posts[firstClickedItem.key]
-            let item2 = Posts[key]
-
-
-
-            item1.conectedPosts.push({...item2,conectedPosts:[] })
-
-
-            this.drawLine(evt, firstClickedItem.coordinates)
-
-            let res = await insertPost(item1)
-
-            if(res.status === "OK"){
-                this.store.dispatch(UpdatePost({key:firstClickedItem.key,data:res.data}))
-            }
-
-
-            console.log(this.state.clickedItemBuffer)
-
-            this.setState({clickedItemBuffer: []})
-        }else{
-            this.setState({
-                clickedItemBuffer:[
-                    ...clickedItemBuffer,
-                    {key:key, coordinates:evt}
-                ]
-
-            })
-        }
-
-
-
-
-        console.log("Clicou em poste.")
-        console.log(evt)
+       
         
         
     }
@@ -265,6 +190,16 @@ class MapView extends Component {
                             onChange={this.handleInputChange('treeQtd')}
                             fullWidth
                         />
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="impact"
+                            label="Impacto"
+                            type="number"
+                            onChange={this.handleInputChange('impact')}
+                            fullWidth
+                        />
+
 
 
 
@@ -298,7 +233,7 @@ class MapView extends Component {
 
 
                             {
-                                Posts.map((item,key)=><PostItem lat={item.latitude} lng={item.longitude}/>)
+                                Posts.map((item,key)=><PostItem lat={item.latitude} lng={item.longitude} impact={item.impact} podaId={item.podaId}/>)
                             }
                         </GoogleMapReact>): <h1>Carregando...</h1>
 
@@ -327,11 +262,25 @@ const styles = {
 
 const PostItem = (props) =>{
 
-    const {lat,lng} = props
-
-
+    const {lat,lng, impact,podaId} = props
+    /** 
+     * 
+     * 255 / 51 = 5;
+     * 
+     * 100 / 5 = 20;
+     * 
+     * impact/20 * 51
+    */
+    console.log(impact)
+    
+    let r = 0 + impact /20*51;
+    let g = 255 - impact/20*51;
+    
     const style ={
         item:{
+           background:'radial-gradient(ellipse at center, rgb('+ r + ', '+ g+', 0) 0%, rgba('+r+','+g+',0,0.03) 56%, rgba('+r+','+g+',0,0.02) 57%, rgba('+r+','+g+',0,0) 58%)'
+        },
+        inPodaItem:{
             position: 'absolute',
             transform: 'translate(-50%, -50%)',
             borderRadius:'50%',
@@ -340,12 +289,12 @@ const PostItem = (props) =>{
             padding:0,
             borderColor:"#008b72",
             borderStyle:'solid',
-            width:'10px',
-            height:'10px'
+            width:'20px',
+            height:'20px'
         }
     }
     return(
-        <div  lat={lat} lng={lng} style={style.item}>
+        <div  lat={lat} lng={lng} style={podaId== null?style.item:style.inPodaItem} className="postItem">
 
         </div>
     )

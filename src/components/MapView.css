@@ -6,3 +6,22 @@
 h1{
     color: #00AC8F
 }
+
+.postItem{
+    background: rgba(0,255,89,1);
+    
+
+
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ff59', endColorstr='#870c0c', GradientType=1 );
+    position: absolute;
+    transform: translate(-50%, -50%);
+    borderRadius:50%;
+    backgroundColor:#00AC8F;
+    borderWidth:1px;
+    padding:0;
+
+    borderColor:#008b72;
+    borderStyle:solid;
+    width:50px;
+    height:50px
+}
