@@ -200,6 +200,16 @@ class MapView extends Component {
                             fullWidth
                         />
 
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="regionId"
+                            label="Id da região"
+                            type="number"
+                            onChange={this.handleInputChange('regionId')}
+                            fullWidth
+                        />
+
 
 
 
